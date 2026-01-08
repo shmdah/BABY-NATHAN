@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#2D1B18">
     
-    <title>Nathan's Hub ✨</title>
+    <title>Nathan's Hub Premium</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     
     <style>
@@ -20,7 +21,6 @@
             color: #EFEBE9;
             overscroll-behavior: none;
             -webkit-tap-highlight-color: transparent;
-            overflow-x: hidden;
         }
         .font-serif { font-family: 'Playfair Display', serif; }
 
@@ -34,40 +34,28 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
         }
 
-        /* Neon Pulse Animation */
-        .glow-icon {
-            filter: drop-shadow(0 0 5px var(--glow-color));
-            animation: glow-pulse 3s infinite alternate;
-        }
+        /* Nav Drawer Transition */
+        #nav-drawer { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .drawer-open { transform: translateX(0) !important; }
+        .drawer-closed { transform: translateX(-100%); }
+
+        /* Animations */
+        .glow-icon { filter: drop-shadow(0 0 5px var(--glow-color)); animation: glow-pulse 3s infinite alternate; }
         @keyframes glow-pulse {
             from { filter: drop-shadow(0 0 2px var(--glow-color)); opacity: 0.8; }
             to { filter: drop-shadow(0 0 15px var(--glow-color)); opacity: 1; }
         }
 
-        /* Confetti Canvas */
-        #confetti-canvas {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100;
-        }
-
-        /* Back Button */
+        /* Utilities */
+        .safe-pt { padding-top: calc(env(safe-area-inset-top) + 1rem); }
+        .safe-pb { padding-bottom: calc(env(safe-area-inset-bottom) + 1.5rem); }
         .back-btn {
-            position: fixed; top: 1rem; left: 1rem; z-index: 60;
+            position: fixed; top: 1rem; right: 1rem; z-index: 60;
             padding: 0.75rem; background: rgba(0,0,0,0.3);
             backdrop-filter: blur(10px); border-radius: 50%;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-
-        /* Custom Input Styling */
-        .custom-input {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: #EFEBE9;
-            text-align: center;
-        }
-        .custom-input::placeholder { color: rgba(239, 235, 233, 0.3); }
-
-        .safe-pt { padding-top: calc(env(safe-area-inset-top) + 1rem); }
-        .safe-pb { padding-bottom: calc(env(safe-area-inset-bottom) + 1.5rem); }
+        #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; }
     </style>
 </head>
 <body class="safe-pb">
@@ -75,33 +63,63 @@
     <canvas id="confetti-canvas"></canvas>
 
     <header id="main-header" class="fixed top-0 left-0 right-0 z-50 glass-card rounded-none border-t-0 p-4 flex justify-between items-center safe-pt">
-        <div>
+        <button onclick="toggleDrawer()" class="p-2 -ml-2 active:scale-90 transition-transform">
+            <i data-lucide="menu" class="w-6 h-6 text-[#EFEBE9]"></i>
+        </button>
+        
+        <div class="text-center">
             <h1 class="font-serif italic text-xl">Nathan's Hub</h1>
             <p id="live-clock" class="text-[10px] tracking-[0.2em] uppercase text-[#A1887F]">Loading...</p>
         </div>
+
         <div class="flex items-center gap-2">
              <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-             <span class="text-[10px] uppercase font-bold text-[#A1887F]">Live</span>
         </div>
     </header>
 
     <button id="global-back-btn" onclick="switchView('home')" class="hidden back-btn active:scale-90 transition-transform">
-        <i data-lucide="arrow-left" class="w-6 h-6 text-[#EFEBE9]"></i>
+        <i data-lucide="x" class="w-6 h-6 text-[#EFEBE9]"></i>
     </button>
 
+    <div id="nav-drawer" class="fixed inset-y-0 left-0 w-3/4 max-w-xs bg-[#3E2723] z-[60] drawer-closed shadow-2xl p-6 safe-pt border-r border-white/10 flex flex-col justify-between">
+        <div>
+            <h2 class="font-serif italic text-2xl mb-8 mt-4 text-[#D7CCC8]">Menu</h2>
+            <nav class="space-y-4">
+                <button onclick="switchView('home'); toggleDrawer()" class="flex items-center gap-4 w-full p-3 rounded-xl hover:bg-white/5">
+                    <i data-lucide="home" class="w-5 h-5 text-[#A1887F]"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button onclick="switchView('stats'); toggleDrawer()" class="flex items-center gap-4 w-full p-3 rounded-xl hover:bg-white/5">
+                    <i data-lucide="bar-chart-2" class="w-5 h-5 text-[#A1887F]"></i>
+                    <span>Weekly Analytics</span>
+                </button>
+                <button onclick="switchView('meds'); toggleDrawer()" class="flex items-center gap-4 w-full p-3 rounded-xl hover:bg-white/5">
+                    <i data-lucide="list-checks" class="w-5 h-5 text-[#A1887F]"></i>
+                    <span>Routine List</span>
+                </button>
+                <button onclick="switchView('timer'); toggleDrawer()" class="flex items-center gap-4 w-full p-3 rounded-xl hover:bg-white/5">
+                    <i data-lucide="timer" class="w-5 h-5 text-[#A1887F]"></i>
+                    <span>Focus Timer</span>
+                </button>
+            </nav>
+        </div>
+        <div class="text-xs text-[#A1887F] text-center pb-8">
+            v2.5 • Synced
+        </div>
+    </div>
+    <div id="drawer-overlay" onclick="toggleDrawer()" class="fixed inset-0 bg-black/50 z-[55] hidden backdrop-blur-sm"></div>
+
     <main id="home-view" class="min-h-screen pt-24 px-6 pb-32 overflow-y-auto">
-        
         <div class="text-center mb-8">
             <div class="glow-icon inline-block p-6 rounded-full bg-[#4E342E]/40 mb-4 border border-[#D7CCC8]/20">
                 <i data-lucide="compass" class="w-12 h-12 text-[#D7CCC8]"></i>
             </div>
-            <h2 class="text-4xl font-serif italic leading-tight">A guide for brother Nathan</h2>
+            <h2 class="text-4xl font-serif italic leading-tight">Welcome back,<br>Nathan</h2>
         </div>
 
         <div class="glass-card p-6 mb-6 text-center relative overflow-hidden group">
             <div class="absolute top-0 left-0 w-1 h-full bg-[#D7CCC8]"></div>
             <p class="text-[10px] uppercase tracking-widest text-[#A1887F] mb-3">Up Next For You</p>
-            
             <div id="next-up-container" class="transition-all duration-500">
                 <h3 id="next-task-name" class="text-3xl font-serif italic text-[#EFEBE9] mb-1">Loading...</h3>
                 <div class="flex justify-center items-center gap-2 opacity-60">
@@ -109,27 +127,19 @@
                     <p id="next-task-time" class="text-xs tracking-widest">--:--</p>
                 </div>
             </div>
-            
             <button onclick="quickCompleteNext()" id="quick-check-btn" class="mt-4 px-6 py-2 bg-[#EFEBE9] text-[#3E2723] rounded-full text-xs font-bold uppercase active:scale-95 transition-transform hidden">
                 Done
             </button>
         </div>
-        
-        <div class="space-y-4">
-            <button onclick="switchView('meds')" class="w-full py-5 glass-card flex items-center justify-between px-6 active:scale-95 transition-transform group">
-                <div class="flex items-center gap-4">
-                    <i data-lucide="list-checks" class="w-6 h-6 text-[#A1887F] group-hover:text-[#EFEBE9]"></i>
-                    <span class="text-xl font-serif italic">Full Routine List</span>
-                </div>
-                <i data-lucide="chevron-right" class="w-5 h-5 opacity-50"></i>
+
+        <div class="grid grid-cols-2 gap-4">
+            <button onclick="switchView('meds')" class="glass-card p-4 flex flex-col items-center gap-2 active:scale-95 transition-transform">
+                <i data-lucide="list-checks" class="w-6 h-6 text-[#A1887F]"></i>
+                <span class="text-sm font-serif italic">Routine</span>
             </button>
-            
-            <button onclick="switchView('timer')" class="w-full py-5 glass-card flex items-center justify-between px-6 active:scale-95 transition-transform group">
-                <div class="flex items-center gap-4">
-                    <i data-lucide="timer" class="w-6 h-6 text-[#A1887F] group-hover:text-[#EFEBE9]"></i>
-                    <span class="text-xl font-serif italic">Focus Timer</span>
-                </div>
-                <i data-lucide="chevron-right" class="w-5 h-5 opacity-50"></i>
+            <button onclick="switchView('stats')" class="glass-card p-4 flex flex-col items-center gap-2 active:scale-95 transition-transform">
+                <i data-lucide="bar-chart-2" class="w-6 h-6 text-[#A1887F]"></i>
+                <span class="text-sm font-serif italic">Stats</span>
             </button>
         </div>
     </main>
@@ -137,31 +147,39 @@
     <main id="meds-view" class="hidden min-h-screen pt-24 px-4 pb-40">
         <div class="text-center mb-6">
             <h2 class="text-3xl font-serif italic">Daily Steps</h2>
-            <p class="text-[#A1887F] text-xs uppercase tracking-widest mt-1">One thing at a time</p>
+            <p class="text-[#A1887F] text-xs uppercase tracking-widest mt-1">Today's Progress</p>
         </div>
         <div class="space-y-4" id="meds-list"></div>
     </main>
 
+    <main id="stats-view" class="hidden min-h-screen pt-24 px-4 pb-40 overflow-y-auto">
+        <div class="text-center mb-6">
+            <h2 class="text-3xl font-serif italic">Weekly Overview</h2>
+            <button onclick="resetWeeklyData()" class="mt-2 text-[10px] uppercase tracking-widest text-red-300 border border-red-900/50 px-3 py-1 rounded-full hover:bg-red-900/20">
+                Reset Week History
+            </button>
+        </div>
+
+        <div class="glass-card p-4 mb-6">
+             <div class="relative h-48 w-full">
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
+
+        <div id="weekly-grid" class="space-y-4">
+            </div>
+    </main>
+
     <main id="timer-view" class="hidden min-h-screen flex flex-col items-center justify-center px-6">
         <div class="glass-card w-full p-8 text-center shadow-2xl border-white/10 max-w-md relative">
-            
             <div class="absolute top-4 right-4">
-                <button onclick="toggleZenMode()" id="zen-btn" class="p-2 rounded-full border border-white/10 opacity-60 hover:opacity-100 transition-all">
+                <button onclick="toggleZenMode()" class="p-2 rounded-full border border-white/10 opacity-60 hover:opacity-100">
                     <i data-lucide="waves" class="w-5 h-5"></i>
                 </button>
             </div>
-
-            <p class="text-[#A1887F] uppercase tracking-widest text-xs mb-6 mt-2">Wait / Rest Timer</p>
+            <p class="text-[#A1887F] uppercase tracking-widest text-xs mb-6 mt-2">Focus Timer</p>
             <div id="timer-display" class="text-7xl font-light mb-6 tabular-nums tracking-tighter">05:00</div>
             
-            <div class="flex items-center justify-center gap-2 mb-8 bg-[#2D1B18]/30 p-2 rounded-xl w-fit mx-auto border border-white/5">
-                <input type="number" id="custom-min" placeholder="5" class="custom-input w-12 h-10 rounded-lg text-lg focus:outline-none">
-                <span class="text-[10px] uppercase text-[#A1887F] font-bold mr-1">mins</span>
-                <button onclick="setCustomTime()" class="h-10 px-4 bg-[#EFEBE9] text-[#3E2723] rounded-lg text-xs font-bold uppercase active:scale-95 transition-transform">
-                    Set
-                </button>
-            </div>
-
             <div class="flex gap-4 justify-center">
                 <button onclick="toggleTimer()" class="w-20 h-20 bg-[#EFEBE9] text-[#3E2723] rounded-full flex justify-center items-center shadow-[0_0_30px_rgba(239,235,233,0.2)] active:scale-90 transition-transform">
                     <i data-lucide="play" id="timer-icon" class="w-8 h-8 fill-current"></i>
@@ -171,14 +189,11 @@
                 </button>
             </div>
         </div>
-        <div class="mt-8 text-center opacity-50 text-xs">
-            <p>Tip: Tap the wave icon for calming noise</p>
-        </div>
     </main>
 
-    <footer class="fixed bottom-0 left-0 right-0 glass-card rounded-b-none p-6 safe-pb z-50">
+    <footer class="fixed bottom-0 left-0 right-0 glass-card rounded-b-none p-6 safe-pb z-40">
         <div class="flex justify-between items-end mb-2">
-            <span class="text-[10px] font-bold uppercase tracking-widest text-[#A1887F]">Goal Progress</span>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-[#A1887F]">Daily Goal</span>
             <span id="progress-percent" class="font-serif italic text-[#EFEBE9]">0%</span>
         </div>
         <div class="h-3 w-full bg-[#2D1B18] rounded-full overflow-hidden border border-white/10">
@@ -187,18 +202,164 @@
     </footer>
 
     <script>
-        // --- 1. DATA & SETUP ---
-        let items = JSON.parse(localStorage.getItem('nathan_items_v5')) || [
+        // --- 1. CONFIG & DATA ---
+        // Daily Items
+        let items = JSON.parse(localStorage.getItem('nathan_items_v6')) || [
             { id: 1, name: "Morning Meds", time: "08:00", icon: "sun", done: false },
             { id: 2, name: "Lunch Break", time: "13:00", icon: "utensils", done: false },
             { id: 3, name: "Afternoon Rest", time: "16:00", icon: "armchair", done: false },
             { id: 4, name: "Night Routine", time: "20:00", icon: "moon", done: false }
         ];
 
+        // Weekly History
+        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        let weeklySchedule = JSON.parse(localStorage.getItem('weekly_tracker_v1')) || getInitialWeeklyState();
+
+        // MAPPING: Which Item ID corresponds to which Slot in the Weekly Tracker
+        const itemToSlotMap = {
+            1: 'Morning',
+            2: 'Lunch',
+            4: 'Evening'
+        };
+
+        let myBarChart = null;
         let audioCtx, brownNoiseNode, gainNode, isZenPlaying = false;
         let nextTaskId = null;
+        let timerTime = 300, timerInt, timerRun = false;
 
-        // --- 2. NEXT UP LOGIC (The "Better" Feature) ---
+        // --- 2. INITIALIZATION ---
+        function init() {
+            startClock();
+            renderList();
+            updateNextUp();
+            updateProgress();
+            renderWeeklyGrid();
+            initCharts();
+            lucide.createIcons();
+        }
+
+        // --- 3. WEEKLY TRACKER LOGIC ---
+        function getInitialWeeklyState() {
+            const state = {};
+            days.forEach(day => {
+                state[day] = { 'Morning': false, 'Lunch': false, 'Evening': false };
+            });
+            return state;
+        }
+
+        function syncToWeekly(itemId, isDone) {
+            const todayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+            const slot = itemToSlotMap[itemId];
+            
+            if (slot && weeklySchedule[todayName]) {
+                weeklySchedule[todayName][slot] = isDone;
+                localStorage.setItem('weekly_tracker_v1', JSON.stringify(weeklySchedule));
+                renderWeeklyGrid();
+                updateCharts();
+            }
+        }
+
+        function resetWeeklyData() {
+            if(confirm("Reset entire week history?")) {
+                weeklySchedule = getInitialWeeklyState();
+                localStorage.setItem('weekly_tracker_v1', JSON.stringify(weeklySchedule));
+                renderWeeklyGrid();
+                updateCharts();
+            }
+        }
+
+        function renderWeeklyGrid() {
+            const grid = document.getElementById('weekly-grid');
+            grid.innerHTML = '';
+            
+            // Get current day index to highlight today
+            const currentDayIndex = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
+
+            days.forEach((day, index) => {
+                const dayData = weeklySchedule[day];
+                const isToday = index === currentDayIndex;
+                
+                let dots = '';
+                ['Morning', 'Lunch', 'Evening'].forEach(slot => {
+                    let color = 'bg-[#4E342E]'; // default dark brown
+                    if (dayData[slot]) {
+                        if (slot === 'Morning') color = 'bg-orange-400 shadow-[0_0_10px_orange]';
+                        if (slot === 'Lunch') color = 'bg-green-400 shadow-[0_0_10px_lime]';
+                        if (slot === 'Evening') color = 'bg-purple-400 shadow-[0_0_10px_violet]';
+                    }
+                    dots += `<div class="w-3 h-3 rounded-full ${color} transition-all duration-300"></div>`;
+                });
+
+                grid.innerHTML += `
+                    <div class="glass-card p-4 flex justify-between items-center ${isToday ? 'border-[#D7CCC8] bg-[#3E2723]/60' : 'opacity-70'}">
+                        <span class="font-serif ${isToday ? 'text-white font-bold' : 'text-[#A1887F]'}">${day}</span>
+                        <div class="flex gap-2">${dots}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function initCharts() {
+            const ctx = document.getElementById('barChart').getContext('2d');
+            Chart.defaults.color = '#A1887F';
+            Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
+            
+            myBarChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
+                    datasets: [{
+                        label: 'Tasks Done',
+                        data: [0,0,0,0,0,0,0],
+                        backgroundColor: '#D7CCC8',
+                        borderRadius: 4,
+                        hoverBackgroundColor: '#EFEBE9'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, max: 3, ticks: { stepSize: 1 } }, x: { grid: { display: false } } }
+                }
+            });
+            updateCharts();
+        }
+
+        function updateCharts() {
+            const data = days.map(day => {
+                let count = 0;
+                if(weeklySchedule[day].Morning) count++;
+                if(weeklySchedule[day].Lunch) count++;
+                if(weeklySchedule[day].Evening) count++;
+                return count;
+            });
+            if(myBarChart) {
+                myBarChart.data.datasets[0].data = data;
+                myBarChart.update();
+            }
+        }
+
+        // --- 4. CORE DAILY LOGIC ---
+        function toggleItem(id) {
+            const idx = items.findIndex(m => m.id === id);
+            items[idx].done = !items[idx].done;
+            
+            // 1. Vibrate
+            if (items[idx].done && navigator.vibrate) navigator.vibrate([50]);
+            
+            // 2. Save Daily
+            localStorage.setItem('nathan_items_v6', JSON.stringify(items));
+            
+            // 3. Sync to Weekly Tracker
+            syncToWeekly(id, items[idx].done);
+
+            // 4. Update UI
+            renderList();
+            updateNextUp();
+            updateProgress();
+        }
+
         function updateNextUp() {
             const nextItem = items.find(i => !i.done);
             const nameEl = document.getElementById('next-task-name');
@@ -213,71 +374,25 @@
             } else {
                 nextTaskId = null;
                 nameEl.innerText = "All Done! 🎉";
-                timeEl.innerText = "Great job today";
+                timeEl.innerText = "Rest well";
                 btn.classList.add('hidden');
                 fireConfetti();
             }
         }
-
-        function quickCompleteNext() {
-            if(nextTaskId) toggleItem(nextTaskId);
-        }
-
-        // --- 3. CORE APP LOGIC ---
-        function startClock() {
-            setInterval(() => {
-                const now = new Date();
-                document.getElementById('live-clock').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                checkAlarms(now);
-            }, 1000);
-        }
-
-        function checkAlarms(now) {
-            const t = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-            items.forEach(item => {
-                if (item.time === t && !item.done) {
-                    const el = document.getElementById(`item-icon-${item.id}`);
-                    if (el) el.classList.add('scale-125', 'text-yellow-200');
-                }
-            });
-        }
-
-        function toggleItem(id) {
-            const idx = items.findIndex(m => m.id === id);
-            items[idx].done = !items[idx].done;
-            if (items[idx].done && navigator.vibrate) navigator.vibrate([50, 30, 50]);
-            
-            saveData();
-            renderList();
-            updateNextUp(); // Refresh home screen
-            updateProgress();
-        }
-
-        function saveData() {
-            localStorage.setItem('nathan_items_v5', JSON.stringify(items));
-        }
-
-        function updateProgress() {
-            const doneCount = items.filter(m => m.done).length;
-            const percent = Math.round((doneCount / items.length) * 100);
-            document.getElementById('progress-bar').style.width = percent + '%';
-            document.getElementById('progress-percent').innerText = percent + '%';
-        }
+        
+        function quickCompleteNext() { if(nextTaskId) toggleItem(nextTaskId); }
 
         function renderList() {
             const list = document.getElementById('meds-list');
             list.innerHTML = items.map(item => `
                 <div class="glass-card p-4 flex items-center justify-between transition-all duration-500 ${item.done ? 'opacity-40 grayscale scale-95' : ''}">
                     <div class="flex items-center gap-4">
-                        <div id="item-icon-${item.id}" class="glow-icon p-3 bg-[#3E2723] rounded-2xl text-[#D7CCC8]">
+                        <div class="glow-icon p-3 bg-[#3E2723] rounded-2xl text-[#D7CCC8]">
                             <i data-lucide="${item.icon}" class="w-6 h-6"></i>
                         </div>
                         <div>
                             <h3 class="font-serif italic text-lg">${item.name}</h3>
-                            <div class="flex items-center gap-2 mt-1">
-                                <i data-lucide="clock" class="w-3 h-3 text-[#A1887F]"></i>
-                                <input type="time" value="${item.time}" onchange="updateTime(${item.id}, this.value)" class="focus:outline-none bg-transparent w-16 text-sm font-bold text-[#A1887F]">
-                            </div>
+                            <p class="text-xs text-[#A1887F] font-bold tracking-widest">${item.time}</p>
                         </div>
                     </div>
                     <button onclick="toggleItem(${item.id})" class="w-12 h-12 rounded-full border-2 border-[#D7CCC8]/30 flex items-center justify-center transition-all active:scale-90 ${item.done ? 'bg-[#D7CCC8]' : ''}">
@@ -288,161 +403,112 @@
             lucide.createIcons();
         }
 
-        function updateTime(id, val) {
-            const idx = items.findIndex(m => m.id === id);
-            items[idx].time = val;
-            saveData();
-            updateNextUp();
+        function updateProgress() {
+            const doneCount = items.filter(m => m.done).length;
+            const percent = Math.round((doneCount / items.length) * 100);
+            document.getElementById('progress-bar').style.width = percent + '%';
+            document.getElementById('progress-percent').innerText = percent + '%';
         }
 
-        // --- 4. TIMER & ZEN LOGIC ---
-        let timerTime = 300, timerInt, timerRun = false;
-        
-        function setCustomTime() {
-            const val = document.getElementById('custom-min').value;
-            if(val && val > 0) {
-                timerTime = val * 60;
-                updateTimerUI();
-                // Reset play state
-                clearInterval(timerInt);
-                timerRun = false;
-                document.getElementById('timer-icon').setAttribute('data-lucide', 'play');
-                lucide.createIcons();
+        // --- 5. UTILITIES ---
+        function startClock() {
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('live-clock').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }, 1000);
+        }
+
+        function toggleDrawer() {
+            const drawer = document.getElementById('nav-drawer');
+            const overlay = document.getElementById('drawer-overlay');
+            if (drawer.classList.contains('drawer-closed')) {
+                drawer.classList.remove('drawer-closed');
+                drawer.classList.add('drawer-open');
+                overlay.classList.remove('hidden');
+            } else {
+                drawer.classList.add('drawer-closed');
+                drawer.classList.remove('drawer-open');
+                overlay.classList.add('hidden');
             }
         }
 
+        function switchView(view) {
+            ['home-view', 'meds-view', 'timer-view', 'stats-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            const backBtn = document.getElementById('global-back-btn');
+            const header = document.getElementById('main-header');
+
+            if (view === 'home') {
+                document.getElementById('home-view').classList.remove('hidden');
+                backBtn.classList.add('hidden');
+                header.classList.remove('hidden');
+                updateNextUp();
+            } else {
+                document.getElementById(`${view}-view`).classList.remove('hidden');
+                backBtn.classList.remove('hidden');
+                header.classList.add('hidden');
+                if(view === 'stats') { renderWeeklyGrid(); setTimeout(() => updateCharts(), 100); }
+            }
+            window.scrollTo(0,0);
+        }
+
+        // --- 6. TIMER & CONFETTI (Standard) ---
         function toggleTimer() {
             const icon = document.getElementById('timer-icon');
-            if (timerRun) {
-                clearInterval(timerInt);
-                icon.setAttribute('data-lucide', 'play');
-            } else {
+            if (timerRun) { clearInterval(timerInt); icon.setAttribute('data-lucide', 'play'); } 
+            else {
                 timerInt = setInterval(() => {
                     if (timerTime > 0) {
                         timerTime--;
-                        updateTimerUI();
-                    } else {
-                        clearInterval(timerInt);
-                        alert("Great job waiting!");
-                        resetTimer();
-                    }
+                        const m = Math.floor(timerTime/60).toString().padStart(2,'0');
+                        const s = (timerTime%60).toString().padStart(2,'0');
+                        document.getElementById('timer-display').innerText = `${m}:${s}`;
+                    } else { clearInterval(timerInt); resetTimer(); }
                 }, 1000);
                 icon.setAttribute('data-lucide', 'pause');
             }
             timerRun = !timerRun;
             lucide.createIcons();
         }
+        function resetTimer() { clearInterval(timerInt); timerRun=false; timerTime=300; document.getElementById('timer-display').innerText = "05:00"; document.getElementById('timer-icon').setAttribute('data-lucide', 'play'); lucide.createIcons(); }
 
-        function updateTimerUI() {
-            const m = Math.floor(timerTime / 60).toString().padStart(2, '0');
-            const s = (timerTime % 60).toString().padStart(2, '0');
-            document.getElementById('timer-display').innerText = `${m}:${s}`;
-        }
-
-        function resetTimer() {
-            clearInterval(timerInt);
-            timerRun = false;
-            timerTime = 300;
-            updateTimerUI();
-            document.getElementById('timer-icon').setAttribute('data-lucide', 'play');
-            lucide.createIcons();
-        }
-
-        // Zen Mode (Audio)
         function toggleZenMode() {
-            if (!audioCtx) {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioContext();
-            }
-            if (isZenPlaying) {
-                gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1);
-                setTimeout(() => { if(brownNoiseNode) brownNoiseNode.disconnect(); }, 1000);
-                isZenPlaying = false;
-            } else {
-                const bufferSize = 4096;
-                const whiteNoise = audioCtx.createScriptProcessor(bufferSize, 1, 1);
-                whiteNoise.onaudioprocess = function(e) {
-                    const output = e.outputBuffer.getChannelData(0);
-                    for (let i = 0; i < bufferSize; i++) {
-                        const white = Math.random() * 2 - 1;
-                        output[i] = (lastOut + (0.02 * white)) / 1.02;
-                        lastOut = output[i];
-                        output[i] *= 3.5;
+            if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+            if (isZenPlaying) { gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+1); setTimeout(() => brownNoiseNode.disconnect(), 1000); isZenPlaying = false; }
+            else {
+                const bSize = 4096;
+                const wn = audioCtx.createScriptProcessor(bSize, 1, 1);
+                wn.onaudioprocess = e => {
+                    const out = e.outputBuffer.getChannelData(0);
+                    for (let i=0; i<bSize; i++) {
+                        const w = Math.random()*2-1;
+                        out[i] = (lastOut + (0.02*w))/1.02;
+                        lastOut = out[i];
+                        out[i] *= 3.5;
                     }
                 };
                 let lastOut = 0;
-                brownNoiseNode = whiteNoise;
+                brownNoiseNode = wn;
                 gainNode = audioCtx.createGain();
                 gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.15, audioCtx.currentTime + 2);
+                gainNode.gain.exponentialRampToValueAtTime(0.15, audioCtx.currentTime+2);
                 brownNoiseNode.connect(gainNode);
                 gainNode.connect(audioCtx.destination);
                 isZenPlaying = true;
             }
         }
 
-        // --- 5. NAVIGATION ---
-        function switchView(view) {
-            ['home-view', 'meds-view', 'timer-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
-            
-            const backBtn = document.getElementById('global-back-btn');
-            const mainHeader = document.getElementById('main-header');
-
-            if (view === 'home') {
-                document.getElementById('home-view').classList.remove('hidden');
-                backBtn.classList.add('hidden');
-                mainHeader.classList.remove('hidden');
-                updateNextUp(); // Refresh dash
-            } else {
-                document.getElementById(`${view}-view`).classList.remove('hidden');
-                backBtn.classList.remove('hidden');
-                mainHeader.classList.add('hidden');
-                if (view === 'meds') renderList();
-            }
-            window.scrollTo(0,0);
-        }
-
-        // --- 6. CONFETTI ---
         function fireConfetti() {
-            const canvas = document.getElementById('confetti-canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            const pieces = [];
-            const colors = ['#D7CCC8', '#EFEBE9', '#8D6E63', '#FFD700'];
-            for(let i=0; i<150; i++) {
-                pieces.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height - canvas.height,
-                    rotation: Math.random() * 360,
-                    speed: Math.random() * 5 + 2,
-                    color: colors[Math.floor(Math.random() * colors.length)],
-                    size: Math.random() * 10 + 5
-                });
-            }
-            function draw() {
-                ctx.clearRect(0,0,canvas.width,canvas.height);
-                pieces.forEach(p => {
-                    ctx.save();
-                    ctx.translate(p.x, p.y);
-                    ctx.rotate(p.rotation * Math.PI / 180);
-                    ctx.fillStyle = p.color;
-                    ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
-                    ctx.restore();
-                    p.y += p.speed;
-                    p.rotation += 2;
-                });
-                if(pieces.some(p => p.y < canvas.height)) requestAnimationFrame(draw);
-            }
-            draw();
+            const c = document.getElementById('confetti-canvas'); const x = c.getContext('2d');
+            c.width = window.innerWidth; c.height = window.innerHeight;
+            const p = Array(100).fill().map(() => ({x:Math.random()*c.width, y:Math.random()*c.height-c.height, r:Math.random()*360, s:Math.random()*5+2, c: ['#D7CCC8','#8D6E63'][Math.floor(Math.random()*2)]}));
+            function d() {
+                x.clearRect(0,0,c.width,c.height);
+                p.forEach(k => { x.save(); x.translate(k.x,k.y); x.rotate(k.r*Math.PI/180); x.fillStyle=k.c; x.fillRect(-k.s/2,-k.s/2,k.s,k.s); x.restore(); k.y+=k.s; k.r+=2; });
+                if(p.some(k=>k.y<c.height)) requestAnimationFrame(d);
+            } d();
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            lucide.createIcons();
-            startClock();
-            updateProgress();
-            updateNextUp();
-        });
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
