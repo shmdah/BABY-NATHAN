@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#3E2723">
+    
+    <title>Nathan's Care ✨</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --glow-color: #D7CCC8;
+        }
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #2D1B18;
+            color: #EFEBE9;
+            overscroll-behavior: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .font-serif { font-family: 'Playfair Display', serif; }
+
+        /* Neon Glowing Icons */
+        .glow-icon {
+            filter: drop-shadow(0 0 5px var(--glow-color));
+            animation: glow-pulse 2s infinite alternate;
+        }
+        @keyframes glow-pulse {
+            from { filter: drop-shadow(0 0 2px var(--glow-color)); opacity: 0.8; }
+            to { filter: drop-shadow(0 0 12px var(--glow-color)); opacity: 1; }
+        }
+
+        .glass-card {
+            background: rgba(78, 52, 46, 0.4);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 2rem;
+        }
+
+        /* Mobile Safe Areas */
+        .safe-pt { padding-top: calc(env(safe-area-inset-top) + 1rem); }
+        .safe-pb { padding-bottom: calc(env(safe-area-inset-bottom) + 1.5rem); }
+
+        /* Custom Time Input Styling */
+        input[type="time"] {
+            background: transparent;
+            color: #EFEBE9;
+            border: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body class="safe-pb">
+
+    <header class="fixed top-0 left-0 right-0 z-50 glass-card rounded-none border-t-0 p-4 flex justify-between items-center safe-pt">
+        <div>
+            <h1 class="font-serif italic text-xl">Nathan's Routine</h1>
+            <p id="live-clock" class="text-[10px] tracking-[0.2em] uppercase text-[#A1887F]">Syncing Clock...</p>
+        </div>
+        <button onclick="requestSync()" id="sync-btn" class="text-[10px] bg-[#EFEBE9] text-[#3E2723] px-3 py-1 rounded-full font-bold uppercase transition-all">
+            Permit Sync
+        </button>
+    </header>
+
+    <main id="home-view" class="min-h-screen flex flex-col items-center justify-center pt-20 px-6">
+        <div class="glow-icon p-8 rounded-full bg-[#4E342E]/40 mb-10 border border-[#D7CCC8]/20">
+            <i data-lucide="bell-ring" class="w-16 h-16 text-[#D7CCC8]"></i>
+        </div>
+        <h2 class="text-5xl font-serif italic mb-10 text-center">Ready, Nathan?</h2>
+        
+        <div class="w-full space-y-4">
+            <button onclick="switchView('meds')" class="w-full py-6 glass-card flex items-center justify-center gap-3 text-2xl font-serif italic active:scale-95 transition-transform">
+                <i data-lucide="clipboard-check" class="w-6 h-6"></i> Meds List
+            </button>
+            <button onclick="switchView('timer')" class="w-full py-6 glass-card flex items-center justify-center gap-3 text-2xl font-serif italic active:scale-95 transition-transform">
+                <i data-lucide="timer" class="w-6 h-6"></i> Focus Timer
+            </button>
+        </div>
+    </main>
+
+    <main id="meds-view" class="hidden min-h-screen pt-32 px-4 pb-40">
+        <div class="max-w-md mx-auto space-y-4" id="meds-list">
+            </div>
+    </main>
+
+    <main id="timer-view" class="hidden min-h-screen flex flex-col items-center justify-center px-6">
+        <div class="glass-card w-full p-10 text-center shadow-2xl border-white/10">
+            <p class="text-[#A1887F] uppercase tracking-widest text-xs mb-4">Quiet Time</p>
+            <div id="timer-display" class="text-7xl font-light mb-10 tabular-nums">05:00</div>
+            <div class="flex gap-4">
+                <button onclick="toggleTimer()" id="play-pause" class="flex-1 py-5 bg-[#EFEBE9] text-[#3E2723] rounded-2xl font-bold flex justify-center items-center active:scale-90 transition-transform">
+                    <i data-lucide="play" id="timer-icon"></i>
+                </button>
+                <button onclick="resetTimer()" class="w-20 py-5 glass-card rounded-2xl flex justify-center items-center active:scale-90 transition-transform">
+                    <i data-lucide="refresh-cw"></i>
+                </button>
+            </div>
+        </div>
+        <button onclick="switchView('home')" class="mt-8 opacity-50 text-sm italic">← Back to Menu</button>
+    </main>
+
+    <footer class="fixed bottom-0 left-0 right-0 glass-card rounded-b-none p-6 safe-pb z-50">
+        <div class="flex justify-between items-end mb-2">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-[#A1887F]">Daily Goal</span>
+            <span id="progress-percent" class="font-serif italic text-[#EFEBE9]">0%</span>
+        </div>
+        <div class="h-3 w-full bg-[#2D1B18] rounded-full overflow-hidden border border-white/10">
+            <div id="progress-bar" class="h-full bg-gradient-to-r from-[#8D6E63] via-[#D7CCC8] to-[#EFEBE9] transition-all duration-1000" style="width: 0%"></div>
+        </div>
+    </footer>
+
+    <script>
+        // 1. DATA & SYNC LOGIC
+        let medications = JSON.parse(localStorage.getItem('nathan_meds_v2')) || [
+            { id: 1, name: "Morning Meds", time: "08:00", icon: "sun", done: false },
+            { id: 2, name: "Lunch Support", time: "13:00", icon: "utensils", done: false },
+            { id: 3, name: "Afternoon Zap", time: "16:00", icon: "zap", done: false },
+            { id: 4, name: "Nightly Calm", time: "20:00", icon: "moon", done: false }
+        ];
+
+        function requestSync() {
+            const btn = document.getElementById('sync-btn');
+            btn.innerText = "Synced ✓";
+            btn.style.background = "#8D6E63";
+            btn.style.color = "white";
+            startClock();
+        }
+
+        function startClock() {
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('live-clock').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                checkAlarms(now);
+            }, 1000);
+        }
+
+        // 2. ALARM & EDIT LOGIC
+        function checkAlarms(now) {
+            const currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+            medications.forEach(med => {
+                if (med.time === currentTime && !med.done) {
+                    // Visual alarm trigger (gentle glow increase)
+                    const el = document.getElementById(`med-icon-${med.id}`);
+                    if (el) el.classList.add('scale-125', 'text-yellow-200');
+                }
+            });
+        }
+
+        function updateMedTime(id, newTime) {
+            const index = medications.findIndex(m => m.id === id);
+            medications[index].time = newTime;
+            saveData();
+        }
+
+        function toggleDone(id) {
+            const index = medications.findIndex(m => m.id === id);
+            medications[index].done = !medications[index].done;
+            if (medications[index].done && 'vibrate' in navigator) navigator.vibrate([100, 50, 100]);
+            saveData();
+            renderMeds();
+        }
+
+        function saveData() {
+            localStorage.setItem('nathan_meds_v2', JSON.stringify(medications));
+            updateProgress();
+        }
+
+        // 3. UI RENDERING
+        function renderMeds() {
+            const list = document.getElementById('meds-list');
+            list.innerHTML = medications.map(med => `
+                <div class="glass-card p-5 flex items-center justify-between transition-all ${med.done ? 'opacity-40 grayscale scale-95' : ''}">
+                    <div class="flex items-center gap-4">
+                        <div id="med-icon-${med.id}" class="glow-icon p-3 bg-[#3E2723] rounded-2xl text-[#D7CCC8]">
+                            <i data-lucide="${med.icon}" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-serif italic text-lg">${med.name}</h3>
+                            <div class="flex items-center gap-2 mt-1">
+                                <i data-lucide="clock" class="w-3 h-3 text-[#A1887F]"></i>
+                                <input type="time" value="${med.time}" 
+                                    onchange="updateMedTime(${med.id}, this.value)"
+                                    class="focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="toggleDone(${med.id})" class="w-12 h-12 rounded-full border-2 border-[#D7CCC8]/30 flex items-center justify-center ${med.done ? 'bg-[#D7CCC8]' : ''}">
+                        ${med.done ? '<i data-lucide="check" class="text-[#3E2723]"></i>' : ''}
+                    </button>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function updateProgress() {
+            const doneCount = medications.filter(m => m.done).length;
+            const percent = Math.round((doneCount / medications.length) * 100);
+            document.getElementById('progress-bar').style.width = percent + '%';
+            document.getElementById('progress-percent').innerText = percent + '%';
+        }
+
+        function switchView(view) {
+            ['home-view', 'meds-view', 'timer-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            document.getElementById(`${view}-view`).classList.remove('hidden');
+            if (view === 'meds') renderMeds();
+            window.scrollTo(0,0);
+        }
+
+        // 4. TIMER LOGIC
+        let timerSeconds = 300;
+        let timerActive = false;
+        let timerInterval;
+
+        function toggleTimer() {
+            const icon = document.getElementById('timer-icon');
+            if (timerActive) {
+                clearInterval(timerInterval);
+                icon.setAttribute('data-lucide', 'play');
+            } else {
+                timerInterval = setInterval(() => {
+                    if (timerSeconds > 0) {
+                        timerSeconds--;
+                        updateTimerUI();
+                    } else {
+                        clearInterval(timerInterval);
+                        alert("Great job waiting, Nathan!");
+                        resetTimer();
+                    }
+                }, 1000);
+                icon.setAttribute('data-lucide', 'pause');
+            }
+            timerActive = !timerActive;
+            lucide.createIcons();
+        }
+
+        function updateTimerUI() {
+            const m = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
+            const s = (timerSeconds % 60).toString().padStart(2, '0');
+            document.getElementById('timer-display').innerText = `${m}:${s}`;
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerActive = false;
+            timerSeconds = 300;
+            updateTimerUI();
+            document.getElementById('timer-icon').setAttribute('data-lucide', 'play');
+            lucide.createIcons();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            updateProgress();
+            startClock(); // Automatic low-level sync
+        });
+    </script>
+</body>
+</html>
