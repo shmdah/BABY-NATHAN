@@ -46,11 +46,7 @@
 
         /* Confetti Canvas */
         #confetti-canvas {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 100;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100;
         }
 
         /* Back Button */
@@ -61,11 +57,14 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* Mood Button Active State */
-        .mood-btn.active {
-            background: #EFEBE9; color: #3E2723;
-            transform: scale(1.1); box-shadow: 0 0 20px rgba(239, 235, 233, 0.4);
+        /* Custom Input Styling */
+        .custom-input {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #EFEBE9;
+            text-align: center;
         }
+        .custom-input::placeholder { color: rgba(239, 235, 233, 0.3); }
 
         .safe-pt { padding-top: calc(env(safe-area-inset-top) + 1rem); }
         .safe-pb { padding-bottom: calc(env(safe-area-inset-bottom) + 1.5rem); }
@@ -80,11 +79,9 @@
             <h1 class="font-serif italic text-xl">Nathan's Hub</h1>
             <p id="live-clock" class="text-[10px] tracking-[0.2em] uppercase text-[#A1887F]">Loading...</p>
         </div>
-        <div class="flex flex-col items-end">
-             <div class="flex items-center gap-2">
-                 <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                 <span class="text-[10px] uppercase font-bold text-[#A1887F]">Live</span>
-             </div>
+        <div class="flex items-center gap-2">
+             <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+             <span class="text-[10px] uppercase font-bold text-[#A1887F]">Live</span>
         </div>
     </header>
 
@@ -96,34 +93,33 @@
         
         <div class="text-center mb-8">
             <div class="glow-icon inline-block p-6 rounded-full bg-[#4E342E]/40 mb-4 border border-[#D7CCC8]/20">
-                <i data-lucide="sparkles" class="w-12 h-12 text-[#D7CCC8]"></i>
+                <i data-lucide="compass" class="w-12 h-12 text-[#D7CCC8]"></i>
             </div>
             <h2 class="text-4xl font-serif italic leading-tight">A guide for brother Nathan</h2>
         </div>
 
-        <div class="glass-card p-5 mb-6">
-            <p class="text-center text-xs uppercase tracking-widest text-[#A1887F] mb-4">How are you feeling?</p>
-            <div class="flex justify-between px-2">
-                <button onclick="setMood('happy')" id="mood-happy" class="mood-btn flex flex-col items-center gap-2 p-2 rounded-xl transition-all">
-                    <i data-lucide="smile" class="w-8 h-8"></i>
-                    <span class="text-[10px]">Happy</span>
-                </button>
-                <button onclick="setMood('calm')" id="mood-calm" class="mood-btn flex flex-col items-center gap-2 p-2 rounded-xl transition-all">
-                    <i data-lucide="coffee" class="w-8 h-8"></i>
-                    <span class="text-[10px]">Calm</span>
-                </button>
-                <button onclick="setMood('tired')" id="mood-tired" class="mood-btn flex flex-col items-center gap-2 p-2 rounded-xl transition-all">
-                    <i data-lucide="battery-low" class="w-8 h-8"></i>
-                    <span class="text-[10px]">Tired</span>
-                </button>
+        <div class="glass-card p-6 mb-6 text-center relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-1 h-full bg-[#D7CCC8]"></div>
+            <p class="text-[10px] uppercase tracking-widest text-[#A1887F] mb-3">Up Next For You</p>
+            
+            <div id="next-up-container" class="transition-all duration-500">
+                <h3 id="next-task-name" class="text-3xl font-serif italic text-[#EFEBE9] mb-1">Loading...</h3>
+                <div class="flex justify-center items-center gap-2 opacity-60">
+                    <i data-lucide="clock" class="w-3 h-3"></i>
+                    <p id="next-task-time" class="text-xs tracking-widest">--:--</p>
+                </div>
             </div>
+            
+            <button onclick="quickCompleteNext()" id="quick-check-btn" class="mt-4 px-6 py-2 bg-[#EFEBE9] text-[#3E2723] rounded-full text-xs font-bold uppercase active:scale-95 transition-transform hidden">
+                Done
+            </button>
         </div>
         
         <div class="space-y-4">
             <button onclick="switchView('meds')" class="w-full py-5 glass-card flex items-center justify-between px-6 active:scale-95 transition-transform group">
                 <div class="flex items-center gap-4">
-                    <i data-lucide="clipboard-check" class="w-6 h-6 text-[#A1887F] group-hover:text-[#EFEBE9]"></i>
-                    <span class="text-xl font-serif italic">Routine List</span>
+                    <i data-lucide="list-checks" class="w-6 h-6 text-[#A1887F] group-hover:text-[#EFEBE9]"></i>
+                    <span class="text-xl font-serif italic">Full Routine List</span>
                 </div>
                 <i data-lucide="chevron-right" class="w-5 h-5 opacity-50"></i>
             </button>
@@ -141,7 +137,7 @@
     <main id="meds-view" class="hidden min-h-screen pt-24 px-4 pb-40">
         <div class="text-center mb-6">
             <h2 class="text-3xl font-serif italic">Daily Steps</h2>
-            <p class="text-[#A1887F] text-xs uppercase tracking-widest mt-1">Tap icon to check off</p>
+            <p class="text-[#A1887F] text-xs uppercase tracking-widest mt-1">One thing at a time</p>
         </div>
         <div class="space-y-4" id="meds-list"></div>
     </main>
@@ -153,12 +149,19 @@
                 <button onclick="toggleZenMode()" id="zen-btn" class="p-2 rounded-full border border-white/10 opacity-60 hover:opacity-100 transition-all">
                     <i data-lucide="waves" class="w-5 h-5"></i>
                 </button>
-                <p class="text-[8px] uppercase mt-1 opacity-50">Zen Mode</p>
             </div>
 
             <p class="text-[#A1887F] uppercase tracking-widest text-xs mb-6 mt-2">Wait / Rest Timer</p>
-            <div id="timer-display" class="text-7xl font-light mb-8 tabular-nums tracking-tighter">05:00</div>
+            <div id="timer-display" class="text-7xl font-light mb-6 tabular-nums tracking-tighter">05:00</div>
             
+            <div class="flex items-center justify-center gap-2 mb-8 bg-[#2D1B18]/30 p-2 rounded-xl w-fit mx-auto border border-white/5">
+                <input type="number" id="custom-min" placeholder="5" class="custom-input w-12 h-10 rounded-lg text-lg focus:outline-none">
+                <span class="text-[10px] uppercase text-[#A1887F] font-bold mr-1">mins</span>
+                <button onclick="setCustomTime()" class="h-10 px-4 bg-[#EFEBE9] text-[#3E2723] rounded-lg text-xs font-bold uppercase active:scale-95 transition-transform">
+                    Set
+                </button>
+            </div>
+
             <div class="flex gap-4 justify-center">
                 <button onclick="toggleTimer()" class="w-20 h-20 bg-[#EFEBE9] text-[#3E2723] rounded-full flex justify-center items-center shadow-[0_0_30px_rgba(239,235,233,0.2)] active:scale-90 transition-transform">
                     <i data-lucide="play" id="timer-icon" class="w-8 h-8 fill-current"></i>
@@ -169,7 +172,7 @@
             </div>
         </div>
         <div class="mt-8 text-center opacity-50 text-xs">
-            <p>Tip: Turn on Zen Mode for calming noise</p>
+            <p>Tip: Tap the wave icon for calming noise</p>
         </div>
     </main>
 
@@ -185,73 +188,42 @@
 
     <script>
         // --- 1. DATA & SETUP ---
-        let items = JSON.parse(localStorage.getItem('nathan_items_v4')) || [
+        let items = JSON.parse(localStorage.getItem('nathan_items_v5')) || [
             { id: 1, name: "Morning Meds", time: "08:00", icon: "sun", done: false },
             { id: 2, name: "Lunch Break", time: "13:00", icon: "utensils", done: false },
             { id: 3, name: "Afternoon Rest", time: "16:00", icon: "armchair", done: false },
             { id: 4, name: "Night Routine", time: "20:00", icon: "moon", done: false }
         ];
 
-        let currentMood = localStorage.getItem('nathan_mood') || '';
-        let audioCtx, brownNoiseNode, gainNode;
-        let isZenPlaying = false;
+        let audioCtx, brownNoiseNode, gainNode, isZenPlaying = false;
+        let nextTaskId = null;
 
-        // --- 2. MOOD LOGIC ---
-        function setMood(mood) {
-            currentMood = mood;
-            localStorage.setItem('nathan_mood', mood);
-            document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`mood-${mood}`).classList.add('active');
-            
-            // Haptic Feedback
-            if(navigator.vibrate) navigator.vibrate(50);
-        }
+        // --- 2. NEXT UP LOGIC (The "Better" Feature) ---
+        function updateNextUp() {
+            const nextItem = items.find(i => !i.done);
+            const nameEl = document.getElementById('next-task-name');
+            const timeEl = document.getElementById('next-task-time');
+            const btn = document.getElementById('quick-check-btn');
 
-        // --- 3. ZEN MODE (BROWN NOISE GENERATOR) ---
-        // Generates soothing brown noise purely via code - no mp3 files needed
-        function toggleZenMode() {
-            if (!audioCtx) {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioContext();
-            }
-
-            if (isZenPlaying) {
-                gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1);
-                setTimeout(() => { 
-                    if(brownNoiseNode) brownNoiseNode.disconnect(); 
-                    document.getElementById('zen-btn').classList.remove('bg-[#EFEBE9]', 'text-[#3E2723]');
-                    document.getElementById('zen-btn').classList.add('opacity-60');
-                }, 1000);
-                isZenPlaying = false;
+            if (nextItem) {
+                nextTaskId = nextItem.id;
+                nameEl.innerText = nextItem.name;
+                timeEl.innerText = nextItem.time;
+                btn.classList.remove('hidden');
             } else {
-                const bufferSize = 4096;
-                const whiteNoise = audioCtx.createScriptProcessor(bufferSize, 1, 1);
-                whiteNoise.onaudioprocess = function(e) {
-                    const output = e.outputBuffer.getChannelData(0);
-                    for (let i = 0; i < bufferSize; i++) {
-                        const white = Math.random() * 2 - 1;
-                        output[i] = (lastOut + (0.02 * white)) / 1.02;
-                        lastOut = output[i];
-                        output[i] *= 3.5; // Compensate for gain
-                    }
-                };
-                let lastOut = 0;
-
-                brownNoiseNode = whiteNoise;
-                gainNode = audioCtx.createGain();
-                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.15, audioCtx.currentTime + 2); // Fade in
-
-                brownNoiseNode.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                
-                document.getElementById('zen-btn').classList.add('bg-[#EFEBE9]', 'text-[#3E2723]');
-                document.getElementById('zen-btn').classList.remove('opacity-60');
-                isZenPlaying = true;
+                nextTaskId = null;
+                nameEl.innerText = "All Done! 🎉";
+                timeEl.innerText = "Great job today";
+                btn.classList.add('hidden');
+                fireConfetti();
             }
         }
 
-        // --- 4. CORE APP LOGIC ---
+        function quickCompleteNext() {
+            if(nextTaskId) toggleItem(nextTaskId);
+        }
+
+        // --- 3. CORE APP LOGIC ---
         function startClock() {
             setInterval(() => {
                 const now = new Date();
@@ -273,19 +245,16 @@
         function toggleItem(id) {
             const idx = items.findIndex(m => m.id === id);
             items[idx].done = !items[idx].done;
-            
-            if (items[idx].done) {
-                if(navigator.vibrate) navigator.vibrate([50, 30, 50]);
-            }
+            if (items[idx].done && navigator.vibrate) navigator.vibrate([50, 30, 50]);
             
             saveData();
             renderList();
-            checkCompletion();
+            updateNextUp(); // Refresh home screen
+            updateProgress();
         }
 
         function saveData() {
-            localStorage.setItem('nathan_items_v4', JSON.stringify(items));
-            updateProgress();
+            localStorage.setItem('nathan_items_v5', JSON.stringify(items));
         }
 
         function updateProgress() {
@@ -293,13 +262,6 @@
             const percent = Math.round((doneCount / items.length) * 100);
             document.getElementById('progress-bar').style.width = percent + '%';
             document.getElementById('progress-percent').innerText = percent + '%';
-            return percent;
-        }
-
-        function checkCompletion() {
-            if (updateProgress() === 100) {
-                fireConfetti();
-            }
         }
 
         function renderList() {
@@ -330,10 +292,25 @@
             const idx = items.findIndex(m => m.id === id);
             items[idx].time = val;
             saveData();
+            updateNextUp();
         }
 
-        // --- 5. TIMER LOGIC ---
+        // --- 4. TIMER & ZEN LOGIC ---
         let timerTime = 300, timerInt, timerRun = false;
+        
+        function setCustomTime() {
+            const val = document.getElementById('custom-min').value;
+            if(val && val > 0) {
+                timerTime = val * 60;
+                updateTimerUI();
+                // Reset play state
+                clearInterval(timerInt);
+                timerRun = false;
+                document.getElementById('timer-icon').setAttribute('data-lucide', 'play');
+                lucide.createIcons();
+            }
+        }
+
         function toggleTimer() {
             const icon = document.getElementById('timer-icon');
             if (timerRun) {
@@ -355,11 +332,13 @@
             timerRun = !timerRun;
             lucide.createIcons();
         }
+
         function updateTimerUI() {
             const m = Math.floor(timerTime / 60).toString().padStart(2, '0');
             const s = (timerTime % 60).toString().padStart(2, '0');
             document.getElementById('timer-display').innerText = `${m}:${s}`;
         }
+
         function resetTimer() {
             clearInterval(timerInt);
             timerRun = false;
@@ -369,7 +348,40 @@
             lucide.createIcons();
         }
 
-        // --- 6. NAVIGATION ---
+        // Zen Mode (Audio)
+        function toggleZenMode() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+            }
+            if (isZenPlaying) {
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1);
+                setTimeout(() => { if(brownNoiseNode) brownNoiseNode.disconnect(); }, 1000);
+                isZenPlaying = false;
+            } else {
+                const bufferSize = 4096;
+                const whiteNoise = audioCtx.createScriptProcessor(bufferSize, 1, 1);
+                whiteNoise.onaudioprocess = function(e) {
+                    const output = e.outputBuffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        const white = Math.random() * 2 - 1;
+                        output[i] = (lastOut + (0.02 * white)) / 1.02;
+                        lastOut = output[i];
+                        output[i] *= 3.5;
+                    }
+                };
+                let lastOut = 0;
+                brownNoiseNode = whiteNoise;
+                gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.15, audioCtx.currentTime + 2);
+                brownNoiseNode.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                isZenPlaying = true;
+            }
+        }
+
+        // --- 5. NAVIGATION ---
         function switchView(view) {
             ['home-view', 'meds-view', 'timer-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
             
@@ -380,6 +392,7 @@
                 document.getElementById('home-view').classList.remove('hidden');
                 backBtn.classList.add('hidden');
                 mainHeader.classList.remove('hidden');
+                updateNextUp(); // Refresh dash
             } else {
                 document.getElementById(`${view}-view`).classList.remove('hidden');
                 backBtn.classList.remove('hidden');
@@ -389,16 +402,14 @@
             window.scrollTo(0,0);
         }
 
-        // --- 7. CONFETTI ENGINE ---
+        // --- 6. CONFETTI ---
         function fireConfetti() {
             const canvas = document.getElementById('confetti-canvas');
             const ctx = canvas.getContext('2d');
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            
             const pieces = [];
-            const colors = ['#D7CCC8', '#EFEBE9', '#8D6E63', '#FFD700']; // Theme + Gold
-
+            const colors = ['#D7CCC8', '#EFEBE9', '#8D6E63', '#FFD700'];
             for(let i=0; i<150; i++) {
                 pieces.push({
                     x: Math.random() * canvas.width,
@@ -409,8 +420,6 @@
                     size: Math.random() * 10 + 5
                 });
             }
-
-            let animationId;
             function draw() {
                 ctx.clearRect(0,0,canvas.width,canvas.height);
                 pieces.forEach(p => {
@@ -423,23 +432,16 @@
                     p.y += p.speed;
                     p.rotation += 2;
                 });
-                
-                // Stop if all pieces fall off screen
-                if(pieces.some(p => p.y < canvas.height)) {
-                    animationId = requestAnimationFrame(draw);
-                } else {
-                    ctx.clearRect(0,0,canvas.width,canvas.height);
-                }
+                if(pieces.some(p => p.y < canvas.height)) requestAnimationFrame(draw);
             }
             draw();
         }
 
-        // INIT
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
             startClock();
             updateProgress();
-            if(currentMood) setMood(currentMood);
+            updateNextUp();
         });
     </script>
 </body>
