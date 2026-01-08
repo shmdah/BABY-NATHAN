@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#2D1B18">
     
-    <title>Nathan's Hub Premium</title>
+    <title>Nathan's Hub Ultimate</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -14,7 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     
     <style>
-        :root { --glow-color: #D7CCC8; }
+        :root { --glow-color: #D7CCC8; --water-color: #4fc3f7; }
         body {
             font-family: 'Quicksand', sans-serif;
             background-color: #2D1B18;
@@ -46,6 +46,30 @@
             to { filter: drop-shadow(0 0 15px var(--glow-color)); opacity: 1; }
         }
 
+        /* Breathing Animation */
+        .breathing-circle {
+            animation: breathe 8s infinite ease-in-out;
+        }
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); opacity: 0.5; box-shadow: 0 0 20px #D7CCC8; }
+            50% { transform: scale(1.5); opacity: 1; box-shadow: 0 0 60px #D7CCC8; }
+        }
+
+        /* Water Wave Animation */
+        .water-container {
+            position: relative; overflow: hidden; transform: translate3d(0, 0, 0);
+        }
+        .wave {
+            position: absolute; bottom: 0; left: 0; width: 200%; height: 200%;
+            background: rgba(79, 195, 247, 0.4);
+            border-radius: 40%;
+            animation: drift 6s infinite linear;
+            transform-origin: 50% 50%;
+        }
+        .wave:nth-child(2) { animation: drift 8s infinite linear; opacity: 0.3; background: rgba(79, 195, 247, 0.6); }
+        .wave:nth-child(3) { animation: drift 10s infinite linear; opacity: 0.2; background: #4fc3f7; }
+        @keyframes drift { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
         /* Utilities */
         .safe-pt { padding-top: calc(env(safe-area-inset-top) + 1rem); }
         .safe-pb { padding-bottom: calc(env(safe-area-inset-bottom) + 1.5rem); }
@@ -56,6 +80,8 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; }
+        
+        textarea::placeholder { color: rgba(161, 136, 127, 0.5); }
     </style>
 </head>
 <body class="safe-pb">
@@ -89,32 +115,41 @@
                     <i data-lucide="home" class="w-5 h-5 text-[#A1887F]"></i>
                     <span>Dashboard</span>
                 </button>
-                <button onclick="switchView('stats'); toggleDrawer()" class="flex items-center gap-4 w-full p-3 rounded-xl hover:bg-white/5">
-                    <i data-lucide="bar-chart-2" class="w-5 h-5 text-[#A1887F]"></i>
-                    <span>Weekly Analytics</span>
-                </button>
                 <button onclick="switchView('meds'); toggleDrawer()" class="flex items-center gap-4 w-full p-3 rounded-xl hover:bg-white/5">
                     <i data-lucide="list-checks" class="w-5 h-5 text-[#A1887F]"></i>
                     <span>Routine List</span>
                 </button>
+                <button onclick="switchView('stats'); toggleDrawer()" class="flex items-center gap-4 w-full p-3 rounded-xl hover:bg-white/5">
+                    <i data-lucide="bar-chart-2" class="w-5 h-5 text-[#A1887F]"></i>
+                    <span>Weekly Analytics</span>
+                </button>
                 <button onclick="switchView('timer'); toggleDrawer()" class="flex items-center gap-4 w-full p-3 rounded-xl hover:bg-white/5">
-                    <i data-lucide="timer" class="w-5 h-5 text-[#A1887F]"></i>
-                    <span>Focus Timer</span>
+                    <i data-lucide="wind" class="w-5 h-5 text-[#A1887F]"></i>
+                    <span>Focus & Breathe</span>
+                </button>
+                <button onclick="switchView('notes'); toggleDrawer()" class="flex items-center gap-4 w-full p-3 rounded-xl hover:bg-white/5">
+                    <i data-lucide="brain-circuit" class="w-5 h-5 text-[#A1887F]"></i>
+                    <span>Brain Dump</span>
                 </button>
             </nav>
         </div>
         <div class="text-xs text-[#A1887F] text-center pb-8">
-            v2.5 • Synced
+            v3.0 • Ultimate
         </div>
     </div>
     <div id="drawer-overlay" onclick="toggleDrawer()" class="fixed inset-0 bg-black/50 z-[55] hidden backdrop-blur-sm"></div>
 
     <main id="home-view" class="min-h-screen pt-24 px-6 pb-32 overflow-y-auto">
-        <div class="text-center mb-8">
-            <div class="glow-icon inline-block p-6 rounded-full bg-[#4E342E]/40 mb-4 border border-[#D7CCC8]/20">
-                <i data-lucide="compass" class="w-12 h-12 text-[#D7CCC8]"></i>
-            </div>
-            <h2 class="text-4xl font-serif italic leading-tight">Welcome back,<br>Nathan</h2>
+        
+        <div class="text-center mb-10 relative">
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-[#D7CCC8] rounded-full blur-[60px] opacity-10 pointer-events-none"></div>
+            
+            <span class="block text-[10px] uppercase tracking-[0.3em] text-[#A1887F] mb-2 font-bold animate-pulse">The Daily Protocol</span>
+            <h2 class="text-4xl md:text-5xl font-serif italic leading-tight text-[#EFEBE9] drop-shadow-lg">
+                A Guide for<br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#D7CCC8] via-[#EFEBE9] to-[#8D6E63]">Brother Nathan</span>
+            </h2>
+            <div class="w-16 h-1 bg-gradient-to-r from-transparent via-[#A1887F] to-transparent mx-auto mt-4 opacity-50"></div>
         </div>
 
         <div class="glass-card p-6 mb-6 text-center relative overflow-hidden group">
@@ -129,6 +164,26 @@
             </div>
             <button onclick="quickCompleteNext()" id="quick-check-btn" class="mt-4 px-6 py-2 bg-[#EFEBE9] text-[#3E2723] rounded-full text-xs font-bold uppercase active:scale-95 transition-transform hidden">
                 Done
+            </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <button onclick="addWater()" class="glass-card h-40 relative overflow-hidden flex flex-col items-center justify-center group active:scale-95 transition-transform">
+                <div class="water-container absolute bottom-0 left-0 w-full transition-all duration-700 ease-in-out" id="water-fill" style="height: 0%">
+                    <div class="wave"></div>
+                    <div class="wave"></div>
+                    <div class="wave"></div>
+                </div>
+                <div class="relative z-10 flex flex-col items-center text-shadow">
+                    <i data-lucide="droplets" class="w-6 h-6 mb-2 text-white drop-shadow-md"></i>
+                    <span id="water-count" class="text-2xl font-bold text-white drop-shadow-md">0</span>
+                    <span class="text-[10px] uppercase tracking-widest text-white/80 drop-shadow-md">Cups</span>
+                </div>
+            </button>
+
+            <button onclick="switchView('notes')" class="glass-card p-4 flex flex-col items-center justify-center gap-2 active:scale-95 transition-transform">
+                <i data-lucide="pencil" class="w-6 h-6 text-[#A1887F]"></i>
+                <span class="text-sm font-serif italic">Brain Dump</span>
             </button>
         </div>
 
@@ -155,9 +210,6 @@
     <main id="stats-view" class="hidden min-h-screen pt-24 px-4 pb-40 overflow-y-auto">
         <div class="text-center mb-6">
             <h2 class="text-3xl font-serif italic">Weekly Overview</h2>
-            <button onclick="resetWeeklyData()" class="mt-2 text-[10px] uppercase tracking-widest text-red-300 border border-red-900/50 px-3 py-1 rounded-full hover:bg-red-900/20">
-                Reset Week History
-            </button>
         </div>
 
         <div class="glass-card p-4 mb-6">
@@ -166,27 +218,67 @@
             </div>
         </div>
 
-        <div id="weekly-grid" class="space-y-4">
+        <div class="glass-card p-4 mb-6">
+            <h3 class="text-xs uppercase tracking-widest text-[#A1887F] mb-3 text-center">How do you feel today?</h3>
+            <div class="flex justify-between px-2" id="mood-selector">
+                <button onclick="setMood(1)" class="text-2xl hover:scale-125 transition-transform opacity-50" id="mood-1">😫</button>
+                <button onclick="setMood(2)" class="text-2xl hover:scale-125 transition-transform opacity-50" id="mood-2">😕</button>
+                <button onclick="setMood(3)" class="text-2xl hover:scale-125 transition-transform opacity-50" id="mood-3">😐</button>
+                <button onclick="setMood(4)" class="text-2xl hover:scale-125 transition-transform opacity-50" id="mood-4">🙂</button>
+                <button onclick="setMood(5)" class="text-2xl hover:scale-125 transition-transform opacity-50" id="mood-5">🤩</button>
             </div>
+        </div>
+
+        <div id="weekly-grid" class="space-y-4"></div>
+        
+        <div class="text-center mt-8">
+            <button onclick="resetWeeklyData()" class="text-[10px] uppercase tracking-widest text-red-300 border border-red-900/50 px-3 py-1 rounded-full hover:bg-red-900/20">
+                Reset Week History
+            </button>
+        </div>
     </main>
 
     <main id="timer-view" class="hidden min-h-screen flex flex-col items-center justify-center px-6">
-        <div class="glass-card w-full p-8 text-center shadow-2xl border-white/10 max-w-md relative">
-            <div class="absolute top-4 right-4">
-                <button onclick="toggleZenMode()" class="p-2 rounded-full border border-white/10 opacity-60 hover:opacity-100">
-                    <i data-lucide="waves" class="w-5 h-5"></i>
-                </button>
+        
+        <div class="flex bg-[#3E2723] rounded-full p-1 mb-8 border border-white/10">
+            <button onclick="setFocusMode('timer')" id="tab-timer" class="px-6 py-2 rounded-full text-xs font-bold uppercase bg-[#EFEBE9] text-[#3E2723] transition-all">Timer</button>
+            <button onclick="setFocusMode('breath')" id="tab-breath" class="px-6 py-2 rounded-full text-xs font-bold uppercase text-[#A1887F] transition-all">Breathe</button>
+        </div>
+
+        <div id="focus-content-timer" class="w-full max-w-md text-center">
+            <div class="glass-card p-8 shadow-2xl border-white/10 relative">
+                <div class="absolute top-4 right-4">
+                    <button onclick="toggleZenMode()" class="p-2 rounded-full border border-white/10 opacity-60 hover:opacity-100">
+                        <i data-lucide="waves" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <div id="timer-display" class="text-7xl font-light mb-6 tabular-nums tracking-tighter mt-4">05:00</div>
+                <div class="flex gap-4 justify-center">
+                    <button onclick="toggleTimer()" class="w-20 h-20 bg-[#EFEBE9] text-[#3E2723] rounded-full flex justify-center items-center shadow-[0_0_30px_rgba(239,235,233,0.2)] active:scale-90 transition-transform">
+                        <i data-lucide="play" id="timer-icon" class="w-8 h-8 fill-current"></i>
+                    </button>
+                    <button onclick="resetTimer()" class="w-20 h-20 glass-card rounded-full flex justify-center items-center active:scale-90 transition-transform">
+                        <i data-lucide="rotate-ccw" class="w-6 h-6"></i>
+                    </button>
+                </div>
             </div>
-            <p class="text-[#A1887F] uppercase tracking-widest text-xs mb-6 mt-2">Focus Timer</p>
-            <div id="timer-display" class="text-7xl font-light mb-6 tabular-nums tracking-tighter">05:00</div>
-            
-            <div class="flex gap-4 justify-center">
-                <button onclick="toggleTimer()" class="w-20 h-20 bg-[#EFEBE9] text-[#3E2723] rounded-full flex justify-center items-center shadow-[0_0_30px_rgba(239,235,233,0.2)] active:scale-90 transition-transform">
-                    <i data-lucide="play" id="timer-icon" class="w-8 h-8 fill-current"></i>
-                </button>
-                <button onclick="resetTimer()" class="w-20 h-20 glass-card rounded-full flex justify-center items-center active:scale-90 transition-transform">
-                    <i data-lucide="rotate-ccw" class="w-6 h-6"></i>
-                </button>
+        </div>
+
+        <div id="focus-content-breath" class="hidden w-full max-w-md text-center">
+            <div class="glass-card p-12 shadow-2xl border-white/10 flex flex-col items-center justify-center min-h-[300px]">
+                <div class="breathing-circle w-32 h-32 rounded-full bg-[#EFEBE9] opacity-20 flex items-center justify-center mb-6"></div>
+                <p class="text-xl font-serif italic text-[#D7CCC8]">Inhale... Exhale...</p>
+            </div>
+        </div>
+
+    </main>
+
+    <main id="notes-view" class="hidden min-h-screen pt-24 px-6 pb-32">
+        <div class="h-full flex flex-col">
+            <h2 class="text-3xl font-serif italic mb-6">Brain Dump</h2>
+            <div class="glass-card flex-1 p-4 relative">
+                <textarea id="brain-dump" class="w-full h-full bg-transparent border-none outline-none resize-none text-[#EFEBE9] font-sans text-lg leading-relaxed p-2 placeholder-opacity-50" placeholder="Type anything here... It saves automatically."></textarea>
+                <div class="absolute bottom-4 right-4 text-[10px] uppercase text-[#A1887F] pointer-events-none">Saved</div>
             </div>
         </div>
     </main>
@@ -203,25 +295,19 @@
 
     <script>
         // --- 1. CONFIG & DATA ---
-        // Daily Items
-        let items = JSON.parse(localStorage.getItem('nathan_items_v6')) || [
+        let items = JSON.parse(localStorage.getItem('nathan_items_v7')) || [
             { id: 1, name: "Morning Meds", time: "08:00", icon: "sun", done: false },
             { id: 2, name: "Lunch Break", time: "13:00", icon: "utensils", done: false },
             { id: 3, name: "Afternoon Rest", time: "16:00", icon: "armchair", done: false },
             { id: 4, name: "Night Routine", time: "20:00", icon: "moon", done: false }
         ];
 
-        // Weekly History
         const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-        let weeklySchedule = JSON.parse(localStorage.getItem('weekly_tracker_v1')) || getInitialWeeklyState();
+        let weeklySchedule = JSON.parse(localStorage.getItem('weekly_tracker_v2')) || getInitialWeeklyState();
+        let waterCount = parseInt(localStorage.getItem('water_count')) || 0;
+        let dailyMood = localStorage.getItem('daily_mood') || null;
 
-        // MAPPING: Which Item ID corresponds to which Slot in the Weekly Tracker
-        const itemToSlotMap = {
-            1: 'Morning',
-            2: 'Lunch',
-            4: 'Evening'
-        };
-
+        const itemToSlotMap = { 1: 'Morning', 2: 'Lunch', 4: 'Evening' };
         let myBarChart = null;
         let audioCtx, brownNoiseNode, gainNode, isZenPlaying = false;
         let nextTaskId = null;
@@ -235,25 +321,116 @@
             updateProgress();
             renderWeeklyGrid();
             initCharts();
+            updateWaterUI();
+            loadNotes();
+            updateMoodUI();
             lucide.createIcons();
+            
+            // Check for new day reset for water
+            const lastDate = localStorage.getItem('last_date');
+            const today = new Date().toDateString();
+            if(lastDate !== today) {
+                waterCount = 0;
+                localStorage.setItem('water_count', 0);
+                dailyMood = null;
+                localStorage.setItem('daily_mood', null);
+                localStorage.setItem('last_date', today);
+                updateWaterUI();
+                updateMoodUI();
+            }
         }
 
-        // --- 3. WEEKLY TRACKER LOGIC ---
+        // --- 3. NEW FEATURES LOGIC ---
+
+        // Water
+        function addWater() {
+            if (waterCount < 8) {
+                waterCount++;
+                localStorage.setItem('water_count', waterCount);
+                updateWaterUI();
+                if(navigator.vibrate) navigator.vibrate(50);
+            } else {
+                if(confirm("Reset water counter?")) {
+                    waterCount = 0;
+                    localStorage.setItem('water_count', 0);
+                    updateWaterUI();
+                }
+            }
+        }
+
+        function updateWaterUI() {
+            document.getElementById('water-count').innerText = waterCount;
+            const pct = (waterCount / 8) * 100;
+            document.getElementById('water-fill').style.height = pct + '%';
+        }
+
+        // Notes
+        const noteArea = document.getElementById('brain-dump');
+        noteArea.addEventListener('input', (e) => {
+            localStorage.setItem('nathan_notes', e.target.value);
+        });
+        function loadNotes() {
+            noteArea.value = localStorage.getItem('nathan_notes') || '';
+        }
+
+        // Mood
+        function setMood(level) {
+            dailyMood = level;
+            localStorage.setItem('daily_mood', level);
+            updateMoodUI();
+            if(navigator.vibrate) navigator.vibrate(50);
+        }
+
+        function updateMoodUI() {
+            for(let i=1; i<=5; i++) {
+                const el = document.getElementById(`mood-${i}`);
+                if(dailyMood == i) {
+                    el.classList.remove('opacity-50');
+                    el.classList.add('scale-125');
+                } else {
+                    el.classList.add('opacity-50');
+                    el.classList.remove('scale-125');
+                }
+            }
+        }
+
+        // Focus Mode Switcher
+        function setFocusMode(mode) {
+            const timerDiv = document.getElementById('focus-content-timer');
+            const breathDiv = document.getElementById('focus-content-breath');
+            const tabTimer = document.getElementById('tab-timer');
+            const tabBreath = document.getElementById('tab-breath');
+
+            if (mode === 'timer') {
+                timerDiv.classList.remove('hidden');
+                breathDiv.classList.add('hidden');
+                tabTimer.classList.add('bg-[#EFEBE9]', 'text-[#3E2723]');
+                tabTimer.classList.remove('text-[#A1887F]');
+                tabBreath.classList.remove('bg-[#EFEBE9]', 'text-[#3E2723]');
+                tabBreath.classList.add('text-[#A1887F]');
+            } else {
+                timerDiv.classList.add('hidden');
+                breathDiv.classList.remove('hidden');
+                tabBreath.classList.add('bg-[#EFEBE9]', 'text-[#3E2723]');
+                tabBreath.classList.remove('text-[#A1887F]');
+                tabTimer.classList.remove('bg-[#EFEBE9]', 'text-[#3E2723]');
+                tabTimer.classList.add('text-[#A1887F]');
+            }
+        }
+
+        // --- 4. CORE LOGIC (Routine & Weekly) ---
         function getInitialWeeklyState() {
             const state = {};
-            days.forEach(day => {
-                state[day] = { 'Morning': false, 'Lunch': false, 'Evening': false };
-            });
+            days.forEach(day => state[day] = { 'Morning': false, 'Lunch': false, 'Evening': false });
             return state;
         }
 
         function syncToWeekly(itemId, isDone) {
             const todayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
             const slot = itemToSlotMap[itemId];
-            
             if (slot && weeklySchedule[todayName]) {
                 weeklySchedule[todayName][slot] = isDone;
-                localStorage.setItem('weekly_tracker_v1', JSON.stringify(weeklySchedule));
+                localStorage.setItem('weekly_tracker_v2', JSON.stringify(weeklySchedule));
                 renderWeeklyGrid();
                 updateCharts();
             }
@@ -262,7 +439,7 @@
         function resetWeeklyData() {
             if(confirm("Reset entire week history?")) {
                 weeklySchedule = getInitialWeeklyState();
-                localStorage.setItem('weekly_tracker_v1', JSON.stringify(weeklySchedule));
+                localStorage.setItem('weekly_tracker_v2', JSON.stringify(weeklySchedule));
                 renderWeeklyGrid();
                 updateCharts();
             }
@@ -271,17 +448,14 @@
         function renderWeeklyGrid() {
             const grid = document.getElementById('weekly-grid');
             grid.innerHTML = '';
-            
-            // Get current day index to highlight today
             const currentDayIndex = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
 
             days.forEach((day, index) => {
                 const dayData = weeklySchedule[day];
                 const isToday = index === currentDayIndex;
-                
                 let dots = '';
                 ['Morning', 'Lunch', 'Evening'].forEach(slot => {
-                    let color = 'bg-[#4E342E]'; // default dark brown
+                    let color = 'bg-[#4E342E]'; 
                     if (dayData[slot]) {
                         if (slot === 'Morning') color = 'bg-orange-400 shadow-[0_0_10px_orange]';
                         if (slot === 'Lunch') color = 'bg-green-400 shadow-[0_0_10px_lime]';
@@ -303,7 +477,6 @@
             const ctx = document.getElementById('barChart').getContext('2d');
             Chart.defaults.color = '#A1887F';
             Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
-            
             myBarChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -312,8 +485,7 @@
                         label: 'Tasks Done',
                         data: [0,0,0,0,0,0,0],
                         backgroundColor: '#D7CCC8',
-                        borderRadius: 4,
-                        hoverBackgroundColor: '#EFEBE9'
+                        borderRadius: 4
                     }]
                 },
                 options: {
@@ -334,27 +506,15 @@
                 if(weeklySchedule[day].Evening) count++;
                 return count;
             });
-            if(myBarChart) {
-                myBarChart.data.datasets[0].data = data;
-                myBarChart.update();
-            }
+            if(myBarChart) { myBarChart.data.datasets[0].data = data; myBarChart.update(); }
         }
 
-        // --- 4. CORE DAILY LOGIC ---
         function toggleItem(id) {
             const idx = items.findIndex(m => m.id === id);
             items[idx].done = !items[idx].done;
-            
-            // 1. Vibrate
             if (items[idx].done && navigator.vibrate) navigator.vibrate([50]);
-            
-            // 2. Save Daily
-            localStorage.setItem('nathan_items_v6', JSON.stringify(items));
-            
-            // 3. Sync to Weekly Tracker
+            localStorage.setItem('nathan_items_v7', JSON.stringify(items));
             syncToWeekly(id, items[idx].done);
-
-            // 4. Update UI
             renderList();
             updateNextUp();
             updateProgress();
@@ -373,13 +533,12 @@
                 btn.classList.remove('hidden');
             } else {
                 nextTaskId = null;
-                nameEl.innerText = "All Done! 🎉";
+                nameEl.innerText = "All Done!";
                 timeEl.innerText = "Rest well";
                 btn.classList.add('hidden');
                 fireConfetti();
             }
         }
-        
         function quickCompleteNext() { if(nextTaskId) toggleItem(nextTaskId); }
 
         function renderList() {
@@ -433,7 +592,7 @@
         }
 
         function switchView(view) {
-            ['home-view', 'meds-view', 'timer-view', 'stats-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            ['home-view', 'meds-view', 'timer-view', 'stats-view', 'notes-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
             const backBtn = document.getElementById('global-back-btn');
             const header = document.getElementById('main-header');
 
@@ -442,6 +601,7 @@
                 backBtn.classList.add('hidden');
                 header.classList.remove('hidden');
                 updateNextUp();
+                updateWaterUI();
             } else {
                 document.getElementById(`${view}-view`).classList.remove('hidden');
                 backBtn.classList.remove('hidden');
@@ -451,7 +611,7 @@
             window.scrollTo(0,0);
         }
 
-        // --- 6. TIMER & CONFETTI (Standard) ---
+        // --- 6. TIMER & CONFETTI ---
         function toggleTimer() {
             const icon = document.getElementById('timer-icon');
             if (timerRun) { clearInterval(timerInt); icon.setAttribute('data-lucide', 'play'); } 
